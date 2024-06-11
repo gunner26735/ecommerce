@@ -8,7 +8,9 @@ const controller = require('../controller/control')
 route.get('/api',controller.apiHomePage)//index page of api
 
 //users API
-route.post('/api/user/register',controller.doRegisterUser)//index page of api
+route.post('/api/user/register',controller.doRegisterUser)//to reg new user
+route.post('/api/user/login',controller.doLoginUser)//to login a user
+route.get('/api/user/logout',controller.doLogoutUser)//to logout a user
 
 
 module.exports = route
