@@ -20,5 +20,6 @@ route.post('/api/order/place',controller.doPlaceOrder)// to place an order for p
 
 //cart API
 route.post('/api/cart/add',controller.doAddProductInCart)// to add an order in cart
+route.get('/api/cart/checkout',controller.doCheckoutCart)// to confirm Order in cart
 
 module.exports = route
