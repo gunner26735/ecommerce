@@ -165,6 +165,7 @@ exports.doPlaceOrder = (req, res) => {
 
         pool.query("SELECT * FROM products where id=$1;", [ product_id ], (err, data) => {
             if (err) { return res.status(400).send({ message: "Error while fetching product" }); }
+            else if(data.rows.length === 0){ return res.status(200).send({ message: "Product does not exist!" }); }
             else {
 
                 //calculating price for the total ordered quantity
@@ -204,7 +205,7 @@ exports.doPlaceOrder = (req, res) => {
  */
 
 /**
- * Add To Cart: This will add the order into the cart for currently logged in user.
+ * Add To Cart: This will add the order into the cart for currently logged in user and it will be reserved means it will be deducted from the main product quantity.
  * POST PARAMETERS are:
  * @param {integer} product_id - The id of the product
  * @param {integer} quantity - The product quantity to buy.
@@ -229,11 +230,14 @@ exports.doAddProductInCart = (req,res)=>{
 
         pool.query("SELECT * FROM products where id=$1;", [ product_id ], (err, data) => {
             if (err) { return res.status(400).send({ message: "Error while fetching product" }); }
+            else if(data.rows.length === 0){ return res.status(200).send({ message: "Product does not exist!" }); }
             else {
 
                 //calculating price for the total ordered quantity
                 price = data.rows[0].price;
                 price = price * quantity;
+
+                let new_quantity = data.rows[0].price - quantity; //calculating new quantity before purchase
                 
                 // checking if required quantity is there or not 
                 if(data.rows[0].quantity < quantity){
@@ -244,6 +248,11 @@ exports.doAddProductInCart = (req,res)=>{
                     pool.query("INSERT INTO CART(user_id,product_id,quantity,price,product_add) VALUES($1,$2,$3,$4,$5);", [user_id, product_id, quantity,price, new Date()], (err, data) => {
                         if (err) {console.log(err); return res.status(400).send({ message: "Error while placing order" }); }
                         else { return res.status(201).send({ message: "Product added into the Cart." , body : data.rows[0]}); }
+                    });
+
+                    // updating products quantity
+                    pool.query("UPDATE products set quantity=$1 where id=$2;", [new_quantity,product_id], (err, data) => {
+                        if (err) {console.log(err); return res.status(400).send({ message: "Error while placing order" }); }
                     });
                 }
             }
