@@ -1,5 +1,9 @@
 # E-commerce
 
+## Database Schema
+![alt text](gitimages/DB_Schema.png)
+* For Interactive view [Click Here](https://drawsql.app/teams/myspace-4/diagrams/ecommerce)
+
 ## How to Setup
 * Node JS Version used is `21.7.1`
 * Step 1 : Clone the repo
