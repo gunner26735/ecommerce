@@ -18,5 +18,7 @@ route.post('/api/product/add',controller.doAddProduct)// to create a new product
 route.get('/api/order',controller.doGetAllOrder)// to get All the users Order
 route.post('/api/order/place',controller.doPlaceOrder)// to place an order for product
 
+//cart API
+route.post('/api/cart/add',controller.doAddProductInCart)// to add an order in cart
 
 module.exports = route

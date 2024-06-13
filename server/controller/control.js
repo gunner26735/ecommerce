@@ -119,7 +119,7 @@ exports.doPlaceOrder = (req, res) => {
     var price;
     var user_id = parseInt(req.session.userId);
 
-    if(product_id !== "" && quantity !== "" && price !== ""){
+    if(product_id !== "" && quantity !== ""){
 
         pool.query("SELECT * FROM products where id=$1;", [ product_id ], (err, data) => {
             if (err) { return res.status(400).send({ message: "Error while fetching product" }); }
@@ -153,4 +153,50 @@ exports.doPlaceOrder = (req, res) => {
         return res.status(400).send({ message: "Fields are empty." });
     }
 
+}
+
+/**
+ * CART functionality
+ */
+
+exports.doAddProductInCart = (req,res)=>{
+    //auth check
+    if(!req.session.isLoggedIn){
+        return res.status(401).send({message:"Please Login First."})
+    }
+
+    //body empty check
+    if (Object.keys(req.body).length === 0) {
+        return res.status(400).send({ message: "Insufficient Information" });
+    }
+
+    const { product_id, quantity } = req.body;
+    var price;
+    var user_id = parseInt(req.session.userId);
+
+    if(product_id !== "" && quantity !== ""){
+
+        pool.query("SELECT * FROM products where id=$1;", [ product_id ], (err, data) => {
+            if (err) { return res.status(400).send({ message: "Error while fetching product" }); }
+            else { 
+                price = data.rows[0].price;
+                price = price * quantity;
+                
+                // checking if required quantity is there or not 
+                if(data.rows[0].quantity < quantity){
+                    return res.status(400).send({ message: "Insufficient Quantity!" });
+                }
+                else{
+                    // adding product into the Cart
+                    pool.query("INSERT INTO CART(user_id,product_id,quantity,price,product_add) VALUES($1,$2,$3,$4,$5);", [user_id, product_id, quantity,price, new Date()], (err, data) => {
+                        if (err) {console.log(err); return res.status(400).send({ message: "Error while placing order" }); }
+                        else { return res.status(201).send({ message: "Product added into the Cart." , body : data.rows[0]}); }
+                    });
+                }
+            }
+        });
+    }
+    else{
+        return res.status(400).send({ message: "Fields are empty." });
+    }
 }
